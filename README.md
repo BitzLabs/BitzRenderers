@@ -11,6 +11,18 @@ BitzRenderersは、BitzLabsエコシステムの出力バックエンドです�
 -   **`PngRenderer` (第2目標)**: `LayoutAST`を、ラスタライズ（ピクセル化）してPNG画像に変換します。
 -   **(将来的に)** `HtmlCanvasRenderer`, `PowerPointRenderer`など、様々な出力形式への拡張が可能です。
 
+## ✅ 初期開発ToDoリスト
+
+1.  **共通インターフェースの定義**:
+    *   `IRenderer`インターフェースを定義。`RenderToString(ILayoutNode layoutNode)`や`RenderToFile(ILayoutNode layoutNode, string filePath)`といったメソッドを持つ。
+2.  **`SvgRenderer`の実装**:
+    *   `SvgRenderer`クラスを作成し、`IRenderer`を実装。
+    *   `LayoutAST`を走査するVisitorパターンを実装。
+    *   各`LayoutAST`ノードを、対応するSVGタグ文字列に変換するロジックを実装 (`BoxNode` -> `<rect>`, `PathNode` -> `<path>`など)。
+    *   C#の`StringBuilder`や`XDocument`を利用して、効率的にSVGドキュメントを構築する。
+3.  **レンダラーファクトリー (任意)**:
+    *   `RendererFactory`クラスを作成。`"svg"`という文字列から`SvgRenderer`のインスタンスを生成するなど、レンダラーの作成を抽象化する。
+
 ## このライブラリの位置づけ
 
 このライブラリは、BitzLabsのアーキテクチャにおける「関心の分離」を完璧に体現しています。レイアウトロジック（`BitzPlot`, `BitzDoc`など）と、特定のファイル形式へのエンコーディングロジックを完全に分離します。
@@ -21,25 +33,3 @@ BitzRenderersは、BitzLabsエコシステムの出力バックエンドです�
 
 -   `BitzLayout` (入力型として)
 -   (外部ライブラリ) `Svg.Skia`, `QuestPDF`, `SkiaSharp`など、各形式の生成ライブラリ。
-
-## **✅ 初期開発ToDoリスト**
-
-1.  **共通インターフェースの定義**:
-    *   `IRenderer` インターフェースを定義。`public string RenderToString(ILayoutNode layoutNode)` や `public void RenderToFile(ILayoutNode layoutNode, string filePath)` のようなメソッドを持つ。
-
-2.  **`SvgRenderer`の実装**:
-    *   `SvgRenderer` クラスを作成し、`IRenderer`を実装する。
-    *   **実装ロジック**:
-        1.  `LayoutAST`をVisitorパターンで再帰的に走査する。
-        2.  各`LayoutAST`ノード（`BoxNode`, `TextSpanNode`, `PathNode`など）に対応するSVGタグの文字列を生成する。
-            *   `BoxNode` -> `<rect>`
-            *   `TextSpanNode` -> `<text>`
-            *   `PathNode` -> `<path>`
-        3.  `LayoutAST`の`style`プロパティ（`fill`, `stroke`など）を、SVGタグの属性（`fill="..."`, `stroke="..."`）に変換する。
-        4.  生成したタグ文字列を組み立てて、完全なSVGドキュメント文字列を返す。
-    *   *ヒント: C#の`StringBuilder`や`XDocument`を使うと、効率的にXML（SVG）文字列を構築できます。*
-
-3.  **レンダラーファクトリー (任意)**:
-    *   `RendererFactory` クラスを作成。`public IRenderer Create(string format)` のようなメソッドで、`"svg"`という文字列から`SvgRenderer`のインスタンスを返すなど、レンダラーの生成を抽象化する。
-
----
